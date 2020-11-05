@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "326789182189",
+    "firebase_url": "https://petwatch-android-app.firebaseio.com",
+    "project_id": "petwatch-android-app",
+    "storage_bucket": "petwatch-android-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:326789182189:android:e1bfabf0e0f17a6c2a52e4",
+        "android_client_info": {
+          "package_name": "com.example.myapplication"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "326789182189-si2ao4jv5d7vjkd5url7g6uhl3ev3e37.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCdn16khJ3yhxBIF4dlQ99s9qpvxfjYMBA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "326789182189-si2ao4jv5d7vjkd5url7g6uhl3ev3e37.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
