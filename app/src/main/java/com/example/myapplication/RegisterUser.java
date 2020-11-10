@@ -10,6 +10,7 @@ import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,6 +25,7 @@ public class RegisterUser extends AppCompatActivity implements View.OnClickListe
     private FirebaseAuth mAuth;
     private TextView PetWatchTitle, registerUser;
     private EditText Password, Email, FullName, PetName, PetBreed, PetAge;
+    private ProgressBar progressBar2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +46,7 @@ public class RegisterUser extends AppCompatActivity implements View.OnClickListe
         PetName = findViewById(R.id.petName);
         PetBreed = findViewById(R.id.petBreed);
         PetAge = findViewById(R.id.petAge);
+        progressBar2 = findViewById(R.id.progressBar2);
 
 
 
@@ -127,6 +130,8 @@ public class RegisterUser extends AppCompatActivity implements View.OnClickListe
             return;
         }
 
+        progressBar2.setVisibility(View.VISIBLE);
+
 
         mAuth.createUserWithEmailAndPassword(user_email, user_password)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
@@ -143,12 +148,14 @@ public class RegisterUser extends AppCompatActivity implements View.OnClickListe
                                 public void onComplete(@NonNull Task<Void> task) {
                                     if (task.isSuccessful())
                                     {
-                                        Toast.makeText(RegisterUser.this, "User has been registered.", Toast.LENGTH_LONG).show();
+                                        Toast.makeText(getApplicationContext(), "User has been registered.", Toast.LENGTH_LONG).show();
+                                        progressBar2.setVisibility(View.GONE);
                                     }
 
                                     else
                                     {
-                                        Toast.makeText(RegisterUser.this, "User registration failed.", Toast.LENGTH_LONG).show();
+                                        Toast.makeText(getApplicationContext(), "User registration failed.", Toast.LENGTH_LONG).show();
+                                        progressBar2.setVisibility(View.GONE);
                                     }
                                 }
                             });

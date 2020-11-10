@@ -8,6 +8,7 @@ import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.content.Intent;
@@ -18,14 +19,15 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class MainActivity extends AppCompatActivity {
 
     private EditText eEmail;
     private EditText ePassword;
     private Button eLogin;
-    private TextView eAttemptsInfo;
     private TextView register;
+    private ProgressBar progressBar;
 
     boolean isValid = false;
     private int counter = 3;
@@ -47,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
         register = findViewById(R.id.tvRegister);
         FirebaseApp.initializeApp(MainActivity.this);
         mAuth = FirebaseAuth.getInstance();
+        progressBar = findViewById(R.id.progressBar);
 
 
 
@@ -73,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 switch(v.getId())
                 {
-                    case R.id.etEmail:
+                    case R.id.btnLogin:
                     {
                         userLogin();
                         break;
@@ -109,21 +112,42 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
+        progressBar.setVisibility(View.VISIBLE);
+
+
         mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful())
                 {
                     // direct to user profile
-                    startActivity(new Intent(MainActivity.this, ProfileActivity.class));
+                    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+
+                    if (user.isEmailVerified())
+                    {
+                        startActivity(new Intent(MainActivity.this, ProfileActivity.class));
+                        Toast.makeText(getApplicationContext(), "Login credentials was successful!", Toast.LENGTH_LONG).show();
+                        progressBar.setVisibility(View.GONE);
+                    }
+
+                    else
+                    {
+                        user.sendEmailVerification();
+                        Toast.makeText(getApplicationContext(), "Please check your email to verify your account.", Toast.LENGTH_LONG).show();
+                        progressBar.setVisibility(View.GONE);
+
+                    }
                 }
 
                 else
                 {
-                    Toast.makeText(MainActivity.this, "Failed to login! Recheck your credentials.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "Failed to login! Recheck your credentials.", Toast.LENGTH_LONG).show();
+                    progressBar.setVisibility(View.GONE);
                 }
             }
         });
+
     }
 
 }
