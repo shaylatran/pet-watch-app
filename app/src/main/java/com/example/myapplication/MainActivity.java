@@ -28,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
     private Button eLogin;
     private TextView register;
     private ProgressBar progressBar;
+    private TextView forgotPassword;
 
     boolean isValid = false;
     private int counter = 3;
@@ -50,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
         FirebaseApp.initializeApp(MainActivity.this);
         mAuth = FirebaseAuth.getInstance();
         progressBar = findViewById(R.id.progressBar);
+        forgotPassword = findViewById(R.id.tvForgotPassword);
 
 
 
@@ -81,6 +83,20 @@ public class MainActivity extends AppCompatActivity {
                         userLogin();
                         break;
                     }
+                }
+            }
+        });
+
+        forgotPassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switch(v.getId())
+                {
+                    case R.id.tvForgotPassword:
+                        startActivity(new Intent(MainActivity.this, ForgotPassword.class));
+                        break;
+                    default:
+                        throw new IllegalStateException("Unexpected value: " + v.getId());
                 }
             }
         });
