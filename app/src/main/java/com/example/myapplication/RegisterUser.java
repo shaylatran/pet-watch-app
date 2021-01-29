@@ -1,11 +1,7 @@
 package com.example.myapplication;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
@@ -13,6 +9,9 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -68,9 +67,6 @@ public class RegisterUser extends AppCompatActivity implements View.OnClickListe
                 break;
             }
         }
-
-
-
     }
 
     private void registerUser() {
@@ -152,8 +148,11 @@ public class RegisterUser extends AppCompatActivity implements View.OnClickListe
                                         startActivity(new Intent(RegisterUser.this, MainActivity.class));
                                     }
 
-                                    Toast.makeText(getApplicationContext(), "User registration failed.", Toast.LENGTH_LONG).show();
-                                    progressBar2.setVisibility(View.GONE);
+                                    else
+                                    {
+                                        Toast.makeText(getApplicationContext(), "User registration failed.", Toast.LENGTH_LONG).show();
+                                        progressBar2.setVisibility(View.GONE);
+                                    }
                                 }
                             });
                         }

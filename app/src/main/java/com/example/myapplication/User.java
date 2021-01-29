@@ -17,4 +17,6 @@ public class User {
         this.petbreed = petbreed;
         this.petage = petage;
     }
+
 }
+
