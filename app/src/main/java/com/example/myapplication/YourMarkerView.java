@@ -30,7 +30,7 @@ public class YourMarkerView extends MarkerView {
         // find your layout components
         tvContent = (TextView) findViewById(R.id.tvContent);
         this.reference_timestamp = reference_timestamp;
-        this.mDataFormat = new SimpleDateFormat("MM-dd-yyyy h:mm:ss a", Locale.ENGLISH);
+        this.mDataFormat = new SimpleDateFormat("h:mm:ss a", Locale.ENGLISH);
         this.mDate = new Date();
     }
 

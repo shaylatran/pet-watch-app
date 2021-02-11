@@ -9,8 +9,9 @@
 
     <TextView
         android:id="@+id/tvWelcome"
-        android:layout_width="290dp"
-        android:layout_height="24dp"
+        android:layout_width="292dp"
+        android:layout_height="37dp"
+        android:textColor="@color/black"
         android:text=""
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -34,18 +35,21 @@
         tools:context=".ProfileActivity">
 
         <TextView
+            android:textColor="@color/black"
             android:id="@+id/tvPetNameInput"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="20sp" />
 
         <TextView
+            android:textColor="@color/black"
             android:id="@+id/tvPetBreedInput"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="20sp" />
 
         <TextView
+            android:textColor="@color/black"
             android:id="@+id/tvPetAgeInput"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -68,6 +72,7 @@
         tools:context=".ProfileActivity">
 
         <TextView
+            android:textColor="@color/black"
             android:id="@+id/tvPetName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -76,6 +81,7 @@
             android:textStyle="bold" />
 
         <TextView
+            android:textColor="@color/black"
             android:id="@+id/tvPetBreed"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -84,6 +90,7 @@
             android:textStyle="bold" />
 
         <TextView
+            android:textColor="@color/black"
             android:id="@+id/tvPetAge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

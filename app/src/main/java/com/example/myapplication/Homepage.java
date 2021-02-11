@@ -24,7 +24,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class Homepage extends AppCompatActivity{
 
@@ -32,20 +35,20 @@ public class Homepage extends AppCompatActivity{
     private FirebaseUser user;
     private DatabaseReference reference;
     private String userID;
-    private TextView tvContent;
+    private TextView tvTitle;
     long reference_timestamp;
 
     ArrayList<Long> acTime = new ArrayList<>();
     ArrayList<Long> newAcTime = new ArrayList<>();
     ArrayList<Long> acValues = new ArrayList<>();
     ArrayList<Entry> result = new ArrayList<>();
-    ArrayList<Entry> result2 = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_homepage);
 
+        tvTitle = findViewById(R.id.tvTitle);
         chart = findViewById(R.id.petChart);
         chart.setDragEnabled(true);
         chart.setScaleEnabled(true);
@@ -58,17 +61,7 @@ public class Homepage extends AppCompatActivity{
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//                DataSnapshot acxSnapshot = dataSnapshot.child("AcX");
-//                DataSnapshot acySnapshot = dataSnapshot.child("AcY");
-//                DataSnapshot aczSnapshot = dataSnapshot.child("AcZ");
                 DataSnapshot acSnapshot = dataSnapshot.child("Data");
-//                DataSnapshot acTimeSnapshot = dataSnapshot.child("AcTime");
-
-                long convert = 1000L;
-                float counter = 0;
-                float counter1 = 0;
-                float counter2 = 0;
-                float counter3 = 0;
 
                 System.out.println("getting accelerometer values");
                 for (DataSnapshot valueSnapshot : acSnapshot.getChildren())
@@ -76,12 +69,6 @@ public class Homepage extends AppCompatActivity{
                     acValues.add(Long.parseLong((valueSnapshot.getValue(String.class))));
                     acTime.add(Long.parseLong((valueSnapshot.getKey())));
                 }
-
-//                for (int i = 0; i < acValues.size(); i++)
-//                {
-//                    System.out.println(acValues.get(i));
-//                    System.out.println(acTime.get(i));
-//                }
 
                 long temp_time;
                 for (int i = 0; i < acTime.size(); i++)
@@ -98,45 +85,6 @@ public class Homepage extends AppCompatActivity{
                     System.out.println(newAcTime.get(i));
                 }
 
-//
-//                for (int i = 0; i < AcTimeandDate.size(); i++)
-//                {
-////                    parts = AcTimeandDate.get(i).split(" ");
-////                    System.out.println("Month: " + parts[0]);
-////                    System.out.println("Date: " + parts[1]);
-////                    System.out.println("Year: " + parts[2]);
-////                    System.out.println("Time: " + parts[3]);
-//
-//                    try
-//                    {
-////                        DateFormat format = new SimpleDateFormat("MMM dd yyyy HH:mm:ss", Locale.ENGLISH);
-////                        Date date = format.parse(AcTimeandDate.get(i));
-//                        Calendar cal = Calendar.getInstance();
-//                        SimpleDateFormat sdf = new SimpleDateFormat("MMM dd yyyy HH:mm:ss", Locale.ENGLISH);
-//                        cal.setTime(sdf.parse(AcTimeandDate.get(i)));
-//
-//                        Calendar cal2 = Calendar.getInstance();
-//                        cal2.set(Calendar.YEAR, 2021);
-//                        cal2.set(Calendar.MONTH, Calendar.JANUARY);
-//                        cal2.set(Calendar.DAY_OF_MONTH, 29);
-//
-//                        if (cal.after(cal2))
-//                        {
-////                            System.out.println("In here");
-////                            float fDate = (float) cal2.getTime();
-//                            Date date = cal.getTime();
-//                            float fDate = (float) date.getTime();
-//                            System.out.println("Date:" + date);
-//                            fTime.add(fDate);
-//                        }
-//                    }
-//
-//                    catch(Exception e)
-//                    {
-//                        System.out.println(e);
-//                    }
-//                }
-
                 System.out.println("setting results array");
                 for (int i = 0; i < acTime.size(); i++)
                 {
@@ -144,6 +92,16 @@ public class Homepage extends AppCompatActivity{
                 }
 
                 System.out.println("setting dataset");
+
+                Date date = new Date(acTime.get(0)*1000);
+                DateFormat format = new SimpleDateFormat("MMMM dd, yyyy");
+                String formatted = format.format(date);
+
+                tvTitle.setText("Accelerometer Data for " + formatted);
+
+
+
+
                 LineDataSet set1 = new LineDataSet(result, "Magnitude of Accelerometer Data");
 
                 chart.setTouchEnabled(true);
