@@ -21,7 +21,7 @@ import com.google.firebase.database.ValueEventListener;
 
 public class ProfileActivity extends AppCompatActivity {
 
-    private Button logout;
+    private Button logout, seeActivity, bluetoothButton;
     private ProgressBar progressBar3;
     private FirebaseUser user;
     private DatabaseReference reference, reference2;
@@ -48,14 +48,29 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
 
-        newactivity = findViewById(R.id.tvNew);
-        newactivity.setOnClickListener(new View.OnClickListener() {
+        seeActivity = findViewById(R.id.graphButton);
+        seeActivity.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 switch(v.getId())
                 {
-                    case R.id.tvNew:
+                    case R.id.graphButton:
                         startActivity(new Intent(ProfileActivity.this, Homepage.class));
+                        break;
+                    default:
+                        throw new IllegalStateException("Unexpected value: " + v.getId());
+                }
+            }
+        });
+
+        bluetoothButton = findViewById(R.id.bluetoothButton);
+        bluetoothButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switch(v.getId())
+                {
+                    case R.id.bluetoothButton:
+                        startActivity(new Intent(ProfileActivity.this, BluetoothHomepage.class));
                         break;
                     default:
                         throw new IllegalStateException("Unexpected value: " + v.getId());

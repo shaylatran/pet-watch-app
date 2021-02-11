@@ -2,20 +2,20 @@ package com.example.myapplication;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.github.mikephil.charting.charts.LineChart;
-import com.github.mikephil.charting.components.AxisBase;
+import com.github.mikephil.charting.components.IMarker;
+import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
-import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
-import com.github.mikephil.charting.utils.ColorTemplate;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -24,12 +24,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Locale;
-import java.util.concurrent.TimeUnit;
 
 public class Homepage extends AppCompatActivity{
 
@@ -37,14 +32,14 @@ public class Homepage extends AppCompatActivity{
     private FirebaseUser user;
     private DatabaseReference reference;
     private String userID;
+    private TextView tvContent;
+    long reference_timestamp;
 
-    ArrayList<Double> xValues = new ArrayList<>();
-    ArrayList<Double> yValues = new ArrayList<>();
-    ArrayList<Double> zValues = new ArrayList<>();
-    ArrayList<String> AcTime = new ArrayList<>();
-    ArrayList<Long> AcTimeinLong = new ArrayList<>();
+    ArrayList<Long> acTime = new ArrayList<>();
+    ArrayList<Long> newAcTime = new ArrayList<>();
+    ArrayList<Long> acValues = new ArrayList<>();
     ArrayList<Entry> result = new ArrayList<>();
-    ArrayList<Double> trackX = new ArrayList<>();
+    ArrayList<Entry> result2 = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,14 +53,16 @@ public class Homepage extends AppCompatActivity{
         user = FirebaseAuth.getInstance().getCurrentUser();
         userID = user.getUid();
         reference = FirebaseDatabase.getInstance().getReference("Users/" + userID);
+        System.out.println("Printing reference:" + reference);
 
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                DataSnapshot acxSnapshot = dataSnapshot.child("AcX");
-                DataSnapshot acySnapshot = dataSnapshot.child("AcY");
-                DataSnapshot aczSnapshot = dataSnapshot.child("AcZ");
-                DataSnapshot acTimeSnapshot = dataSnapshot.child("AcTime");
+//                DataSnapshot acxSnapshot = dataSnapshot.child("AcX");
+//                DataSnapshot acySnapshot = dataSnapshot.child("AcY");
+//                DataSnapshot aczSnapshot = dataSnapshot.child("AcZ");
+                DataSnapshot acSnapshot = dataSnapshot.child("Data");
+//                DataSnapshot acTimeSnapshot = dataSnapshot.child("AcTime");
 
                 long convert = 1000L;
                 float counter = 0;
@@ -73,39 +70,80 @@ public class Homepage extends AppCompatActivity{
                 float counter2 = 0;
                 float counter3 = 0;
 
-                for (DataSnapshot valueSnapshot : acxSnapshot.getChildren())
+                System.out.println("getting accelerometer values");
+                for (DataSnapshot valueSnapshot : acSnapshot.getChildren())
                 {
-                    counter1+=1;
-                    xValues.add((valueSnapshot.getValue(Double.class)/convert));
+                    acValues.add(Long.parseLong((valueSnapshot.getValue(String.class))));
+                    acTime.add(Long.parseLong((valueSnapshot.getKey())));
                 }
 
-                for (DataSnapshot valueSnapshot : acySnapshot.getChildren())
+//                for (int i = 0; i < acValues.size(); i++)
+//                {
+//                    System.out.println(acValues.get(i));
+//                    System.out.println(acTime.get(i));
+//                }
+
+                long temp_time;
+                for (int i = 0; i < acTime.size(); i++)
                 {
-                    counter2+=1;
-                    yValues.add((valueSnapshot.getValue(Double.class))/convert);
+                    reference_timestamp = acTime.get(0);
+                    System.out.println("Printing acTime.get(0):" + acTime.get(0));
+                    temp_time = acTime.get(i) - reference_timestamp;
+                    System.out.println("Printing temp_time:" + temp_time);
+                    newAcTime.add(temp_time);
                 }
 
-                for (DataSnapshot valueSnapshot : aczSnapshot.getChildren())
+                for (int i = 0; i < newAcTime.size(); i++)
                 {
-                    counter3+=1;
-                    zValues.add((valueSnapshot.getValue(Double.class))/convert);
+                    System.out.println(newAcTime.get(i));
                 }
 
-                for (DataSnapshot valueSnapshot : acTimeSnapshot.getChildren())
-                {
+//
+//                for (int i = 0; i < AcTimeandDate.size(); i++)
+//                {
+////                    parts = AcTimeandDate.get(i).split(" ");
+////                    System.out.println("Month: " + parts[0]);
+////                    System.out.println("Date: " + parts[1]);
+////                    System.out.println("Year: " + parts[2]);
+////                    System.out.println("Time: " + parts[3]);
+//
+//                    try
+//                    {
+////                        DateFormat format = new SimpleDateFormat("MMM dd yyyy HH:mm:ss", Locale.ENGLISH);
+////                        Date date = format.parse(AcTimeandDate.get(i));
+//                        Calendar cal = Calendar.getInstance();
+//                        SimpleDateFormat sdf = new SimpleDateFormat("MMM dd yyyy HH:mm:ss", Locale.ENGLISH);
+//                        cal.setTime(sdf.parse(AcTimeandDate.get(i)));
+//
+//                        Calendar cal2 = Calendar.getInstance();
+//                        cal2.set(Calendar.YEAR, 2021);
+//                        cal2.set(Calendar.MONTH, Calendar.JANUARY);
+//                        cal2.set(Calendar.DAY_OF_MONTH, 29);
+//
+//                        if (cal.after(cal2))
+//                        {
+////                            System.out.println("In here");
+////                            float fDate = (float) cal2.getTime();
+//                            Date date = cal.getTime();
+//                            float fDate = (float) date.getTime();
+//                            System.out.println("Date:" + date);
+//                            fTime.add(fDate);
+//                        }
+//                    }
+//
+//                    catch(Exception e)
+//                    {
+//                        System.out.println(e);
+//                    }
+//                }
 
-                    AcTime.add(valueSnapshot.getValue(String.class));
+                System.out.println("setting results array");
+                for (int i = 0; i < acTime.size(); i++)
+                {
+                    result.add(new Entry(newAcTime.get(i), acValues.get(i)));
                 }
 
-                for (int i = 0; i < yValues.size(); i++)
-                {
-                    counter += 1;
-                    double sqrtResult = Math.sqrt((xValues.get(i)*xValues.get(i)) + ((yValues.get(i)*yValues.get(i))) + ((zValues.get(i)*zValues.get(i))));
-                    trackX.add(sqrtResult);
-                    result.add(new Entry(counter, (float)sqrtResult));
-//                    System.out.println(result.get(i));
-                }
-
+                System.out.println("setting dataset");
                 LineDataSet set1 = new LineDataSet(result, "Magnitude of Accelerometer Data");
 
                 chart.setTouchEnabled(true);
@@ -117,83 +155,69 @@ public class Homepage extends AppCompatActivity{
                 chart.setBackgroundColor(Color.WHITE);
                 chart.setViewPortOffsets(0f, 0f, 0f, 0f);
 
-                set1.setFillAlpha(110);
+
+                set1.setDrawValues(false);
                 set1.setAxisDependency(YAxis.AxisDependency.LEFT);
-                set1.setColor(ColorTemplate.getHoloBlue());
-                set1.setValueTextColor(ColorTemplate.getHoloBlue());
+                set1.setColor(Color.rgb(0,0,165));
                 set1.setLineWidth(1.5f);
                 set1.setDrawCircles(true);
-                set1.setDrawValues(true);
-                set1.setFillAlpha(65);
-                set1.setFillColor(ColorTemplate.getHoloBlue());
-                set1.setHighLightColor(Color.rgb(244, 117, 117));
-                set1.setDrawCircleHole(true);
 
+                System.out.println("creating arraylist for datasets");
                 ArrayList<ILineDataSet> dataSets = new ArrayList<>();
+
+                System.out.println("adding dataset to set1");
                 dataSets.add(set1);
 
+                System.out.println("creating LineData data2 for datasets");
                 LineData data2 = new LineData(dataSets);
 
+
+
+                System.out.println("setting the data");
                 chart.setData(data2);
 
-//                Legend l = chart.getLegend();
-//
-//                l.setForm(Legend.LegendForm.LINE);
-//                Typeface tfLight = Typeface.createFromAsset(context.getAssets(), "OpenSans-Light.ttf");;
-//                l.setTypeface(tfLight);
-//                l.setTextColor(Color.WHITE);
-//                l.setVerticalAlignment(Legend.LegendVerticalAlignment.TOP);
-//                l.setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER);
-//                l.setOrientation(Legend.LegendOrientation.HORIZONTAL);
-//                l.setDrawInside(false);
-//                l.setXEntrySpace(2f);
-//                l.setYEntrySpace(0f);
-//                l.setYOffset(0f);
 
-                double dMinX = Collections.min(trackX);
-                System.out.println(dMinX);
-                int fMinX = (int) dMinX;
+                chart.getDescription().setText("");
+                IMarker marker = new YourMarkerView(getApplicationContext(), R.layout.marker, reference_timestamp);
+                chart.setMarker(marker);
+
+                Legend l = chart.getLegend();
+
+                l.setForm(Legend.LegendForm.LINE);
+                l.setVerticalAlignment(Legend.LegendVerticalAlignment.TOP);
+                l.setHorizontalAlignment(Legend.LegendHorizontalAlignment.RIGHT);
+                l.setOrientation(Legend.LegendOrientation.HORIZONTAL);
+                l.setDrawInside(false);
+
 
                 XAxis xAxis = chart.getXAxis();
                 xAxis.setPosition(XAxis.XAxisPosition.BOTTOM_INSIDE);
-                xAxis.setTextSize(10f);
-                xAxis.setTextColor(Color.WHITE);
-                xAxis.setDrawAxisLine(true);
+                xAxis.setTextSize(16f);
+                xAxis.setValueFormatter(new XAxisValueFormatter(reference_timestamp));
+//                xAxis.setTextColor(Color.BLUE);
                 xAxis.setDrawGridLines(false);
-                xAxis.setAxisMinimum(0);
-                xAxis.setAxisMaximum(100);
-                xAxis.setTextColor(Color.rgb(255, 192, 56));
+//                xAxis.setTextColor(Color.rgb(255, 192, 56));
                 xAxis.setCenterAxisLabels(true);
-                xAxis.setGranularity(1f);
+                xAxis.setLabelCount(3);
+                xAxis.setCenterAxisLabels(true);
 
-                xAxis.setValueFormatter(new IndexAxisValueFormatter() {
-
-                    private final SimpleDateFormat mFormat = new SimpleDateFormat("dd MMM HH:mm", Locale.ENGLISH);
-
-                    @Override
-                    public String getFormattedValue(float value, AxisBase axis) {
-
-                        long millis = TimeUnit.HOURS.toMillis((long) value);
-                        return mFormat.format(new Date(millis));
-                    }
-                });
 
                 YAxis leftAxis = chart.getAxisLeft();
                 leftAxis.setPosition(YAxis.YAxisLabelPosition.INSIDE_CHART);
-                leftAxis.setTextColor(ColorTemplate.getHoloBlue());
                 leftAxis.setDrawGridLines(false);
                 leftAxis.setGranularityEnabled(true);
-                leftAxis.setAxisMinimum(fMinX);
-//                leftAxis.setAxisMaximum(fMinX);
-                leftAxis.setYOffset(0f);
-                leftAxis.setTextColor(Color.rgb(255, 192, 56));
+                leftAxis.setLabelCount(3);
+                leftAxis.setTextSize(16f);
+                leftAxis.setTextColor(Color.BLACK);
 
                 YAxis rightAxis = chart.getAxisRight();
                 rightAxis.setEnabled(false);
 
+                System.out.println("notifying data sets changed");
+                chart.notifyDataSetChanged();
+
+                System.out.println("invalidate");
                 chart.invalidate();
-
-
             }
 
 
