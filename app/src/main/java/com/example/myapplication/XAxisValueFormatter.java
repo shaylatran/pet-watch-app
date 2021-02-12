@@ -1,12 +1,16 @@
 package com.example.myapplication;
 
+import android.os.Build;
+
+import androidx.annotation.RequiresApi;
+
 import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.formatter.ValueFormatter;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.TimeZone;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 
 public class XAxisValueFormatter extends ValueFormatter {
     long reference_timestamp;
@@ -17,20 +21,23 @@ public class XAxisValueFormatter extends ValueFormatter {
 
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public String getFormattedValue(float value) {
 
-        long emissionsMilliSince1970Time = (((long)value + reference_timestamp) * 1000);
+        long epoch = (((long)value + reference_timestamp) * 1000);
 
         // Show time in local version
-        Date timeMilliseconds = new Date(emissionsMilliSince1970Time);
-        DateFormat format = new SimpleDateFormat("hh:mm:ss a");
-        format.setTimeZone(TimeZone.getTimeZone("UTC"));
-        String formatted = format.format(emissionsMilliSince1970Time);
+        LocalDateTime dt =
+                LocalDateTime.ofInstant(Instant.ofEpochMilli(epoch), ZoneId.systemDefault());
+
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("h:mm:ss a");
+        String formatted = dtf.format(dt);
 
         return formatted;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public String getAxisLabel(float value, AxisBase axis) {
         return getFormattedValue(value);
     }

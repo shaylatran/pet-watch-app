@@ -1,10 +1,14 @@
 package com.example.myapplication;
 
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
+import android.view.ViewTreeObserver;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.github.mikephil.charting.charts.LineChart;
@@ -22,10 +26,15 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -43,6 +52,8 @@ public class Homepage extends AppCompatActivity{
     ArrayList<Long> acValues = new ArrayList<>();
     ArrayList<Entry> result = new ArrayList<>();
 
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,22 +64,37 @@ public class Homepage extends AppCompatActivity{
         chart.setDragEnabled(true);
         chart.setScaleEnabled(true);
 
+        LocalDateTime dt = LocalDateTime.of(2021, Month.FEBRUARY, 8, 0, 0, 0, 0);
+        LocalDateTime dt2 = LocalDateTime.of(2021, Month.FEBRUARY, 8, 23, 59, 59, 59);
+
+        ZonedDateTime zdt = dt.atZone(ZoneId.systemDefault());
+        ZonedDateTime zdt2 = dt2.atZone(ZoneId.systemDefault());
+
+        long startTime = zdt.toInstant().toEpochMilli()/1000;
+        System.out.println("startTime:" + startTime);
+        long endTime = zdt2.toInstant().toEpochMilli()/1000;
+        System.out.println("endTime:" + endTime);
+
         user = FirebaseAuth.getInstance().getCurrentUser();
         userID = user.getUid();
-        reference = FirebaseDatabase.getInstance().getReference("Users/" + userID);
+        reference = FirebaseDatabase.getInstance().getReference("Users/" + userID + "/Data");
+        Query query = reference.orderByKey().startAt(String.valueOf(startTime)).endAt(String.valueOf(endTime));
+
+        System.out.println("Printing query:" + query);
+
         System.out.println("Printing reference:" + reference);
 
-        reference.addValueEventListener(new ValueEventListener() {
+        query.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                DataSnapshot acSnapshot = dataSnapshot.child("Data");
-
                 System.out.println("getting accelerometer values");
-                for (DataSnapshot valueSnapshot : acSnapshot.getChildren())
+                for (DataSnapshot valueSnapshot : dataSnapshot.getChildren())
                 {
                     acValues.add(Long.parseLong((valueSnapshot.getValue(String.class))));
                     acTime.add(Long.parseLong((valueSnapshot.getKey())));
                 }
+
+                System.out.println(acValues.size());
 
                 long temp_time;
                 for (int i = 0; i < acTime.size(); i++)
@@ -111,71 +137,91 @@ public class Homepage extends AppCompatActivity{
                 chart.setHighlightPerDragEnabled(true);
 
                 chart.setBackgroundColor(Color.WHITE);
-                chart.setViewPortOffsets(0f, 0f, 0f, 0f);
+
+                chart.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+                    @Override
+                    public void onGlobalLayout() {
+                        chart.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                        int offset = (chart.getHeight() - chart.getWidth()) / 100;
+
+                        FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) chart.getLayoutParams();
+                        layoutParams.width = chart.getHeight()-100;
+                        layoutParams.height = chart.getWidth()-50;
+                        chart.setLayoutParams(layoutParams);
+
+                        chart.setTranslationX(offset);
+                        chart.setTranslationY(offset);
+
+                        set1.setDrawValues(false);
+                        set1.setAxisDependency(YAxis.AxisDependency.LEFT);
+                        set1.setColor(Color.rgb(0,0,165));
+                        set1.setLineWidth(1.5f);
+                        set1.setDrawCircles(true);
+
+                        System.out.println("creating arraylist for datasets");
+                        ArrayList<ILineDataSet> dataSets = new ArrayList<>();
+
+                        System.out.println("adding dataset to set1");
+                        dataSets.add(set1);
+
+                        System.out.println("creating LineData data2 for datasets");
+                        LineData data2 = new LineData(dataSets);
 
 
-                set1.setDrawValues(false);
-                set1.setAxisDependency(YAxis.AxisDependency.LEFT);
-                set1.setColor(Color.rgb(0,0,165));
-                set1.setLineWidth(1.5f);
-                set1.setDrawCircles(true);
 
-                System.out.println("creating arraylist for datasets");
-                ArrayList<ILineDataSet> dataSets = new ArrayList<>();
+                        System.out.println("setting the data");
+                        chart.setData(data2);
 
-                System.out.println("adding dataset to set1");
-                dataSets.add(set1);
 
-                System.out.println("creating LineData data2 for datasets");
-                LineData data2 = new LineData(dataSets);
+                        chart.getDescription().setText("");
+                        IMarker marker = null;
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                            marker = new YourMarkerView(getApplicationContext(), R.layout.marker, reference_timestamp);
+                        }
+                        chart.setMarker(marker);
+                        chart.setExtraOffsets(10, 10, 10, 10);
 
 
 
-                System.out.println("setting the data");
-                chart.setData(data2);
+                        Legend l = chart.getLegend();
+
+                        l.setForm(Legend.LegendForm.LINE);
+                        l.setVerticalAlignment(Legend.LegendVerticalAlignment.TOP);
+                        l.setHorizontalAlignment(Legend.LegendHorizontalAlignment.RIGHT);
+                        l.setOrientation(Legend.LegendOrientation.HORIZONTAL);
+                        l.setDrawInside(false);
 
 
-                chart.getDescription().setText("");
-                IMarker marker = new YourMarkerView(getApplicationContext(), R.layout.marker, reference_timestamp);
-                chart.setMarker(marker);
+                        XAxis xAxis = chart.getXAxis();
+                        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+                        xAxis.setTextSize(16f);
+                        xAxis.setValueFormatter(new XAxisValueFormatter(reference_timestamp));
+                        xAxis.setDrawGridLines(false);
+                        xAxis.setCenterAxisLabels(true);
+                        xAxis.setLabelCount(5);
+                        xAxis.setCenterAxisLabels(true);
 
-                Legend l = chart.getLegend();
+                        YAxis leftAxis = chart.getAxisLeft();
+                        leftAxis.setPosition(YAxis.YAxisLabelPosition.OUTSIDE_CHART);
+                        leftAxis.setDrawGridLines(false);
+                        leftAxis.setGranularityEnabled(true);
+                        leftAxis.setLabelCount(5);
+                        leftAxis.setTextSize(16f);
+                        leftAxis.setTextColor(Color.BLACK);
 
-                l.setForm(Legend.LegendForm.LINE);
-                l.setVerticalAlignment(Legend.LegendVerticalAlignment.TOP);
-                l.setHorizontalAlignment(Legend.LegendHorizontalAlignment.RIGHT);
-                l.setOrientation(Legend.LegendOrientation.HORIZONTAL);
-                l.setDrawInside(false);
+                        YAxis rightAxis = chart.getAxisRight();
+                        rightAxis.setEnabled(false);
+
+                        System.out.println("notifying data sets changed");
+                        chart.notifyDataSetChanged();
+
+                        System.out.println("invalidate");
+                        chart.invalidate();
+                    }
+                });
 
 
-                XAxis xAxis = chart.getXAxis();
-                xAxis.setPosition(XAxis.XAxisPosition.BOTTOM_INSIDE);
-                xAxis.setTextSize(16f);
-                xAxis.setValueFormatter(new XAxisValueFormatter(reference_timestamp));
-//                xAxis.setTextColor(Color.BLUE);
-                xAxis.setDrawGridLines(false);
-//                xAxis.setTextColor(Color.rgb(255, 192, 56));
-                xAxis.setCenterAxisLabels(true);
-                xAxis.setLabelCount(3);
-                xAxis.setCenterAxisLabels(true);
-
-
-                YAxis leftAxis = chart.getAxisLeft();
-                leftAxis.setPosition(YAxis.YAxisLabelPosition.INSIDE_CHART);
-                leftAxis.setDrawGridLines(false);
-                leftAxis.setGranularityEnabled(true);
-                leftAxis.setLabelCount(3);
-                leftAxis.setTextSize(16f);
-                leftAxis.setTextColor(Color.BLACK);
-
-                YAxis rightAxis = chart.getAxisRight();
-                rightAxis.setEnabled(false);
-
-                System.out.println("notifying data sets changed");
-                chart.notifyDataSetChanged();
-
-                System.out.println("invalidate");
-                chart.invalidate();
             }
 
 

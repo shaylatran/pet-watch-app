@@ -1,7 +1,11 @@
 package com.example.myapplication;
 
 import android.content.Context;
+import android.graphics.Canvas;
+import android.os.Build;
 import android.widget.TextView;
+
+import androidx.annotation.RequiresApi;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.MarkerView;
@@ -9,31 +13,34 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.utils.MPPointF;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 
+@RequiresApi(api = Build.VERSION_CODES.O)
 public class YourMarkerView extends MarkerView {
 
     private TextView tvContent;
     long reference_timestamp;
-    private Date mDate;
-    private DateFormat mDataFormat;
+    private LocalDateTime mDate;
+    private DateTimeFormatter mDataFormat;
     private LineChart chart;
+    private Context mContext;
 
 
     public YourMarkerView(Context context, int layoutResource, long reference_timestamp) {
         super(context, layoutResource);
 
         // find your layout components
+        chart = findViewById(R.id.petChart);
         tvContent = (TextView) findViewById(R.id.tvContent);
+        this.mContext = context;
         this.reference_timestamp = reference_timestamp;
-        this.mDataFormat = new SimpleDateFormat("h:mm:ss a", Locale.ENGLISH);
-        this.mDate = new Date();
+        this.mDataFormat = DateTimeFormatter.ofPattern("hh:mm:ss a");
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void refreshContent(Entry e, Highlight highlight) {
 
@@ -45,25 +52,55 @@ public class YourMarkerView extends MarkerView {
     }
 
 
+    @Override
+    public void draw(Canvas canvas, float posx, float posy)
+    {
+        // Check marker position and update offsets.
+        System.out.println("Posx:" + posx);
+        int w = getWidth();
+        int h = getHeight();
+        if((getResources().getDisplayMetrics().widthPixels-posx-w) < w) {
+            posx -= w;
+        }
+        System.out.println("Posx:" + posx);
+
+
+        if (getResources().getDisplayMetrics().heightPixels-posy-h < h)
+        {
+            posy-=h;
+        }
+
+        if (posx < 0)
+        {
+            posx+=w;
+        }
+
+
+        canvas.translate(posx, posy);
+        draw(canvas);
+        canvas.translate(-posx, -posy);
+    }
+
     private MPPointF mOffset;
 
     @Override
     public MPPointF getOffset() {
-
         if (mOffset == null) {
-            // center the marker horizontally and vertically
             mOffset = new MPPointF(-(getWidth() / 2), -getHeight());
         }
 
         return mOffset;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     private String getTimedate(long timestamp) {
 
         try {
-            mDate.setTime(timestamp * 1000);
-            mDataFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-            return mDataFormat.format(mDate);
+            LocalDateTime dt =
+                    LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp*1000), ZoneId.systemDefault());
+
+            String formatted = mDataFormat.format(dt);
+            return formatted;
         } catch (Exception ex) {
             return "xx";
         }
