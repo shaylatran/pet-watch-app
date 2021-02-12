@@ -10,7 +10,7 @@
         android:id="@+id/tvTitle"
         android:gravity="center"
         android:textStyle="bold"
-        android:textSize="20sp"
+        android:textSize="28sp"
         android:rotation="90"
         android:textColor="@color/black"
         android:layout_width="2000dp"

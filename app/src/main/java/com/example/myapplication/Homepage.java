@@ -146,8 +146,8 @@ public class Homepage extends AppCompatActivity{
                         int offset = (chart.getHeight() - chart.getWidth()) / 100;
 
                         FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) chart.getLayoutParams();
-                        layoutParams.width = chart.getHeight()-100;
-                        layoutParams.height = chart.getWidth()-50;
+                        layoutParams.width = chart.getHeight();
+                        layoutParams.height = chart.getWidth();
                         chart.setLayoutParams(layoutParams);
 
                         chart.setTranslationX(offset);
