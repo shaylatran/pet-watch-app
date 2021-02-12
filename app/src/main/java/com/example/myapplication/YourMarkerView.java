@@ -37,7 +37,7 @@ public class YourMarkerView extends MarkerView {
         tvContent = (TextView) findViewById(R.id.tvContent);
         this.mContext = context;
         this.reference_timestamp = reference_timestamp;
-        this.mDataFormat = DateTimeFormatter.ofPattern("hh:mm:ss a");
+        this.mDataFormat = DateTimeFormatter.ofPattern("h:mm:ss a");
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)

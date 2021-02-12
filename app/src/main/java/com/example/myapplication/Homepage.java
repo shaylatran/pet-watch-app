@@ -1,6 +1,7 @@
 package com.example.myapplication;
 
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.ViewTreeObserver;
@@ -10,6 +11,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.IMarker;
@@ -20,6 +22,7 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
+import com.github.mikephil.charting.utils.Utils;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -120,7 +123,7 @@ public class Homepage extends AppCompatActivity{
                 System.out.println("setting dataset");
 
                 Date date = new Date(acTime.get(0)*1000);
-                DateFormat format = new SimpleDateFormat("MMMM dd, yyyy");
+                DateFormat format = new SimpleDateFormat("MMMM d, yyyy");
                 String formatted = format.format(date);
 
                 tvTitle.setText("Accelerometer Data for " + formatted);
@@ -155,9 +158,21 @@ public class Homepage extends AppCompatActivity{
 
                         set1.setDrawValues(false);
                         set1.setAxisDependency(YAxis.AxisDependency.LEFT);
-                        set1.setColor(Color.rgb(0,0,165));
-                        set1.setLineWidth(1.5f);
+                        set1.setColor(Color.rgb(57,57,57));
+                        set1.setLineWidth(3f);
                         set1.setDrawCircles(true);
+                        set1.setCircleRadius(3.5f);
+                        set1.setCircleColor(Color.rgb(112,141,255));
+
+                        if (Utils.getSDKInt() >= 18) {
+                            // fill drawable only supported on api level 18 and above
+                            Drawable drawable = ContextCompat.getDrawable(Homepage.this, R.drawable.blue_gradient);
+                            set1.setFillDrawable(drawable);
+                        } else {
+                            set1.setFillColor(Color.BLACK);
+                        }
+
+                        set1.setDrawFilled(true);
 
                         System.out.println("creating arraylist for datasets");
                         ArrayList<ILineDataSet> dataSets = new ArrayList<>();
