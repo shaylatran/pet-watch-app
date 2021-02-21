@@ -46,9 +46,8 @@ public class YourMarkerView extends MarkerView {
 
         long currentTimestamp = (long)e.getX() + reference_timestamp;
         System.out.println("currentTimestamp:" + currentTimestamp);
-        tvContent.setText(e.getY() + " m/s^2 at " + getTimedate(currentTimestamp)); // set the entry-value as the display text
+        tvContent.setText(e.getY() + " m/s^2 at " + getTimedate(currentTimestamp));
 
-        // this will perform necessary layouting
         super.refreshContent(e, highlight);
     }
 
@@ -100,8 +99,6 @@ public class YourMarkerView extends MarkerView {
             Instant instant = Instant.ofEpochSecond(timestamp);
             LocalDateTime dt =
                     instant.atZone(ZoneId.systemDefault()).toLocalDateTime();
-
-//            System.out.println("Marker: " + dt);
 
             String formatted = mDataFormat.format(dt);
             return formatted;
