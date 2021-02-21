@@ -20,7 +20,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApplication">
-        <activity android:name=".DeviceListAdapter"></activity>
+        <activity android:name=".DeviceListAdapter"
+            tools:ignore="Instantiatable"></activity>
         <activity android:name=".BluetoothHomepage" />
         <activity android:name=".ForgotPassword" />
         <activity android:name=".ProfileActivity" />
