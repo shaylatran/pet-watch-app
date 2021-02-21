@@ -62,7 +62,7 @@ public class Homepage extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_homepage);
 
-        tvTitle = findViewById(R.id.tvTitle);
+//        tvTitle = findViewById(R.id.tvTitle);
         chart = findViewById(R.id.petChart);
         chart.setDragEnabled(true);
         chart.setScaleEnabled(true);
