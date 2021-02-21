@@ -6,26 +6,26 @@
     android:layout_height="match_parent"
     tools:context=".Homepage">
 
-    <TextView
-        android:id="@+id/tvTitle"
-        android:gravity="center"
-        android:textStyle="bold"
-        android:textSize="28sp"
-        android:rotation="90"
-        android:textColor="@color/black"
-        android:layout_width="2000dp"
-        android:layout_height="2000dp"
-        android:text="TextView"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/linearLayout5"
-        app:layout_constraintTop_toTopOf="parent" />
+<!--    <TextView-->
+<!--        android:id="@+id/tvTitle"-->
+<!--        android:gravity="center"-->
+<!--        android:textStyle="bold"-->
+<!--        android:textSize="28sp"-->
+<!--        android:rotation="90"-->
+<!--        android:textColor="@color/black"-->
+<!--        android:layout_width="2000dp"-->
+<!--        android:layout_height="2000dp"-->
+<!--        android:text="TextView"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toEndOf="@+id/linearLayout5"-->
+<!--        app:layout_constraintTop_toTopOf="parent" />-->
 
     <LinearLayout
         android:id="@+id/linearLayout5"
-        android:layout_width="350dp"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         tools:ignore="MissingConstraints">
 
         <FrameLayout
@@ -38,7 +38,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
-                android:rotation="90"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"

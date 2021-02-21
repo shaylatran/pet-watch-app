@@ -32,7 +32,7 @@ public class YourMarkerView extends MarkerView {
     public YourMarkerView(Context context, int layoutResource, long reference_timestamp) {
         super(context, layoutResource);
 
-        // find your layout components
+//         find your layout components
         chart = findViewById(R.id.petChart);
         tvContent = (TextView) findViewById(R.id.tvContent);
         this.mContext = context;
@@ -45,6 +45,7 @@ public class YourMarkerView extends MarkerView {
     public void refreshContent(Entry e, Highlight highlight) {
 
         long currentTimestamp = (long)e.getX() + reference_timestamp;
+        System.out.println("currentTimestamp:" + currentTimestamp);
         tvContent.setText(e.getY() + " m/s^2 at " + getTimedate(currentTimestamp)); // set the entry-value as the display text
 
         // this will perform necessary layouting
@@ -96,8 +97,11 @@ public class YourMarkerView extends MarkerView {
     private String getTimedate(long timestamp) {
 
         try {
+            Instant instant = Instant.ofEpochSecond(timestamp);
             LocalDateTime dt =
-                    LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp*1000), ZoneId.systemDefault());
+                    instant.atZone(ZoneId.systemDefault()).toLocalDateTime();
+
+//            System.out.println("Marker: " + dt);
 
             String formatted = mDataFormat.format(dt);
             return formatted;
