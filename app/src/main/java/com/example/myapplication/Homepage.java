@@ -4,8 +4,6 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.view.ViewTreeObserver;
-import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -15,7 +13,6 @@ import androidx.core.content.ContextCompat;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.IMarker;
-import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
@@ -32,12 +29,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.Month;
+import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -51,9 +46,7 @@ public class Homepage extends AppCompatActivity{
     long reference_timestamp;
 
     ArrayList<Long> acTime = new ArrayList<>();
-    ArrayList<Long> newAcTime = new ArrayList<>();
     ArrayList<Long> acValues = new ArrayList<>();
-    ArrayList<Entry> result = new ArrayList<>();
 
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -62,21 +55,24 @@ public class Homepage extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_homepage);
 
-//        tvTitle = findViewById(R.id.tvTitle);
+        tvTitle = findViewById(R.id.tvTitle);
         chart = findViewById(R.id.petChart);
         chart.setDragEnabled(true);
         chart.setScaleEnabled(true);
+        LineData data = new LineData();
+        chart.setData(data);
 
-        LocalDateTime dt = LocalDateTime.of(2021, Month.FEBRUARY, 8, 0, 0, 0, 0);
-        LocalDateTime dt2 = LocalDateTime.of(2021, Month.FEBRUARY, 8, 23, 59, 59, 59);
+        LocalDate today = LocalDate.now(ZoneId.systemDefault());
+        LocalDate tomorrow = today.plusDays(1);
 
-        ZonedDateTime zdt = dt.atZone(ZoneId.systemDefault());
-        ZonedDateTime zdt2 = dt2.atZone(ZoneId.systemDefault());
+        Instant instant = today.atStartOfDay(ZoneId.systemDefault()).toInstant();
+        long startTime = instant.toEpochMilli()/1000;
+        System.out.println(startTime);
 
-        long startTime = zdt.toInstant().toEpochMilli()/1000;
-        System.out.println("startTime:" + startTime);
-        long endTime = zdt2.toInstant().toEpochMilli()/1000;
-        System.out.println("endTime:" + endTime);
+        instant = tomorrow.atStartOfDay(ZoneId.systemDefault()).toInstant();
+        long endTime = instant.toEpochMilli()/1000;
+        System.out.println(endTime);
+
 
         user = FirebaseAuth.getInstance().getCurrentUser();
         userID = user.getUid();
@@ -90,153 +86,125 @@ public class Homepage extends AppCompatActivity{
         query.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                System.out.println("getting accelerometer values");
-                for (DataSnapshot valueSnapshot : dataSnapshot.getChildren())
-                {
-                    acValues.add(Long.parseLong((valueSnapshot.getValue(String.class))));
-                    acTime.add(Long.parseLong((valueSnapshot.getKey())));
-                }
 
-                System.out.println(acValues.size());
-
-                long temp_time;
-                for (int i = 0; i < acTime.size(); i++)
-                {
-                    reference_timestamp = acTime.get(0);
-                    System.out.println("Printing acTime.get(0):" + acTime.get(0));
-                    temp_time = acTime.get(i) - reference_timestamp;
-                    System.out.println("Printing temp_time:" + temp_time);
-                    newAcTime.add(temp_time);
-                }
-
-                for (int i = 0; i < newAcTime.size(); i++)
-                {
-                    System.out.println(newAcTime.get(i));
-                }
-
-                System.out.println("setting results array");
-                for (int i = 0; i < acTime.size(); i++)
-                {
-                    result.add(new Entry(newAcTime.get(i), acValues.get(i)));
-                }
-
-                System.out.println("setting dataset");
-
-                Date date = new Date(acTime.get(0)*1000);
-                DateFormat format = new SimpleDateFormat("MMMM d, yyyy");
-                String formatted = format.format(date);
-
-                tvTitle.setText("Accelerometer Data for " + formatted);
-
-
-
-
-                LineDataSet set1 = new LineDataSet(result, "Magnitude of Accelerometer Data");
-
+                int count = 0;
                 chart.setTouchEnabled(true);
                 chart.setDragEnabled(true);
                 chart.setScaleEnabled(true);
                 chart.setDrawGridBackground(false);
                 chart.setHighlightPerDragEnabled(true);
+                chart.getDescription().setText("");
 
-                chart.setBackgroundColor(Color.WHITE);
 
-                chart.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-                    @Override
-                    public void onGlobalLayout() {
-                        chart.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                        int offset = (chart.getHeight() - chart.getWidth()) / 100;
+                XAxis xl = chart.getXAxis();
+                xl.setPosition(XAxis.XAxisPosition.BOTTOM);
+                xl.setTextColor(Color.BLACK);
+                xl.setTextSize(16f);
+                xl.setLabelCount(2);
+                xl.setDrawGridLines(false);
+                xl.setAvoidFirstLastClipping(true);
+                xl.setEnabled(true);
 
-                        FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) chart.getLayoutParams();
-                        layoutParams.width = chart.getHeight();
-                        layoutParams.height = chart.getWidth();
-                        chart.setLayoutParams(layoutParams);
+                YAxis leftAxis = chart.getAxisLeft();
+                leftAxis.setTextColor(Color.BLACK);
+                leftAxis.setTextSize(16f);
+                leftAxis.setDrawGridLines(true);
 
-                        chart.setTranslationX(offset);
-                        chart.setTranslationY(offset);
+                YAxis rightAxis = chart.getAxisRight();
+                rightAxis.setEnabled(false);
 
-                        set1.setDrawValues(false);
-                        set1.setAxisDependency(YAxis.AxisDependency.LEFT);
-                        set1.setColor(Color.rgb(57,57,57));
-                        set1.setLineWidth(3f);
-                        set1.setDrawCircles(true);
-                        set1.setCircleRadius(3.5f);
-                        set1.setCircleColor(Color.rgb(112,141,255));
+                Date today = new Date();
+                SimpleDateFormat format = new SimpleDateFormat("MMMM d, yyyy");
+                String formatted = format.format(today);
 
-                        if (Utils.getSDKInt() >= 18) {
-                            // fill drawable only supported on api level 18 and above
-                            Drawable drawable = ContextCompat.getDrawable(Homepage.this, R.drawable.blue_gradient);
-                            set1.setFillDrawable(drawable);
-                        } else {
-                            set1.setFillColor(Color.BLACK);
+                tvTitle.setText("Accelerometer Data for " + formatted);
+
+                LineData data = chart.getData();
+
+                if (data != null)
+                {
+                    ILineDataSet set = data.getDataSetByIndex(0);
+
+                    if (set == null)
+                    {
+                        set = createSet();
+
+                        data.addDataSet(set);
+
+                        long acEpoch = 0;
+                        for (DataSnapshot valueSnapshot : dataSnapshot.getChildren())
+                        {
+                            long acValue = Long.parseLong((valueSnapshot.getValue(String.class)));
+                            acValues.add(acValue);
+
+                            acEpoch = Long.parseLong((valueSnapshot.getKey()));
+                            acTime.add(acEpoch);
+
+                            acEpoch = acEpoch - acTime.get(0);
+
+                            data.addEntry(new Entry(acEpoch, acValue), 0);
+
                         }
 
-                        set1.setDrawFilled(true);
-
-                        System.out.println("creating arraylist for datasets");
-                        ArrayList<ILineDataSet> dataSets = new ArrayList<>();
-
-                        System.out.println("adding dataset to set1");
-                        dataSets.add(set1);
-
-                        System.out.println("creating LineData data2 for datasets");
-                        LineData data2 = new LineData(dataSets);
-
-
-
-                        System.out.println("setting the data");
-                        chart.setData(data2);
-
-
-                        chart.getDescription().setText("");
-                        IMarker marker = null;
-                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                            marker = new YourMarkerView(getApplicationContext(), R.layout.marker, reference_timestamp);
-                        }
-                        chart.setMarker(marker);
-                        chart.setExtraOffsets(10, 10, 10, 10);
-
-
-
-                        Legend l = chart.getLegend();
-
-                        l.setForm(Legend.LegendForm.LINE);
-                        l.setVerticalAlignment(Legend.LegendVerticalAlignment.TOP);
-                        l.setHorizontalAlignment(Legend.LegendHorizontalAlignment.RIGHT);
-                        l.setOrientation(Legend.LegendOrientation.HORIZONTAL);
-                        l.setDrawInside(false);
-
-
-                        XAxis xAxis = chart.getXAxis();
-                        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-                        xAxis.setTextSize(16f);
-                        xAxis.setValueFormatter(new XAxisValueFormatter(reference_timestamp));
-                        xAxis.setDrawGridLines(false);
-                        xAxis.setCenterAxisLabels(true);
-                        xAxis.setLabelCount(5);
-                        xAxis.setCenterAxisLabels(true);
-
-                        YAxis leftAxis = chart.getAxisLeft();
-                        leftAxis.setPosition(YAxis.YAxisLabelPosition.OUTSIDE_CHART);
-                        leftAxis.setDrawGridLines(false);
-                        leftAxis.setGranularityEnabled(true);
-                        leftAxis.setLabelCount(5);
-                        leftAxis.setTextSize(16f);
-                        leftAxis.setTextColor(Color.BLACK);
-
-                        YAxis rightAxis = chart.getAxisRight();
-                        rightAxis.setEnabled(false);
-
-                        System.out.println("notifying data sets changed");
-                        chart.notifyDataSetChanged();
-
-                        System.out.println("invalidate");
-                        chart.invalidate();
                     }
-                });
+
+                    else
+                    {
+                        long acEpoch2 = 0;
+                        for (DataSnapshot valueSnapshot : dataSnapshot.getChildren())
+                        {
+                            long acValue = Long.parseLong((valueSnapshot.getValue(String.class)));
+                            acValues.add(acValue);
+                            long acEpoch = Long.parseLong((valueSnapshot.getKey()));
+                            acTime.add(acEpoch);
+
+                            acEpoch2 = acEpoch - acTime.get(0);
+                        }
+
+                        long newAcVal = acValues.get(acValues.size()-1);
+                        data.addEntry(new Entry(acEpoch2, newAcVal), 0);
+
+                    }
 
 
+                    xl.setValueFormatter(new XAxisValueFormatter(acTime.get(0)));
+                    chart.setData(data);
+                    data.notifyDataChanged();
+                    chart.notifyDataSetChanged();
+
+                    chart.invalidate();
+                }
+
+            }
+
+            private ILineDataSet createSet() {
+                LineDataSet set = new LineDataSet(null, "Movement of Pet");
+                set.setDrawValues(false);
+                set.setAxisDependency(YAxis.AxisDependency.LEFT);
+                set.setColor(Color.rgb(57,57,57));
+                set.setLineWidth(3f);
+                set.setDrawCircles(true);
+                set.setCircleRadius(3.5f);
+                set.setCircleColor(Color.rgb(112,141,255));
+
+                if (Utils.getSDKInt() >= 18) {
+                    // fill drawable only supported on api level 18 and above
+                    Drawable drawable = ContextCompat.getDrawable(Homepage.this, R.drawable.blue_gradient);
+                    set.setFillDrawable(drawable);
+                } else {
+                    set.setFillColor(Color.BLACK);
+                }
+
+                set.setDrawFilled(true);
+
+                IMarker marker = null;
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                    marker = new YourMarkerView(getApplicationContext(), R.layout.marker, reference_timestamp);
+                }
+                chart.setMarker(marker);
+                chart.setExtraOffsets(10, 10, 10, 10);
+
+                return set;
             }
 
 

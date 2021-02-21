@@ -25,11 +25,13 @@ public class XAxisValueFormatter extends ValueFormatter {
     @Override
     public String getFormattedValue(float value) {
 
-        long epoch = (((long)value + reference_timestamp) * 1000);
+        long epoch = (((long)value + reference_timestamp));
+        System.out.println("epoch: " + epoch);
 
-        // Show time in local version
+        Instant instant = Instant.ofEpochSecond(epoch);
+
         LocalDateTime dt =
-                LocalDateTime.ofInstant(Instant.ofEpochMilli(epoch), ZoneId.systemDefault());
+                instant.atZone(ZoneId.systemDefault()).toLocalDateTime();
 
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("h:mm:ss a");
         String formatted = dtf.format(dt);
