@@ -22,12 +22,13 @@
         android:theme="@style/Theme.MyApplication">
         <activity android:name=".DeviceListAdapter"
             tools:ignore="Instantiatable"></activity>
+        <activity android:name=".Homepage" />
         <activity android:name=".BluetoothHomepage" />
         <activity android:name=".ForgotPassword" />
         <activity android:name=".ProfileActivity" />
         <activity android:name=".RegisterUser" />
-        <activity android:name=".Homepage" />
-        <activity android:name=".MainActivity">
+        <activity android:name=".MainActivity" android:parentActivityName=".MainActivity"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

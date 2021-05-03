@@ -26,7 +26,6 @@ public class XAxisValueFormatter extends ValueFormatter {
     public String getFormattedValue(float value) {
 
         long epoch = (((long)value + reference_timestamp));
-        System.out.println("epoch: " + epoch);
 
         Instant instant = Instant.ofEpochSecond(epoch);
 
